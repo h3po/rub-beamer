@@ -1,0 +1,462 @@
+% Copyright 2007 by Till Tantau
+% Edited by: Sebastian Jeworutzki 2012
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/licenses/LICENSE for more details.
+
+\ProvidesPackage{beamerinnerthemeDiplsem}[27/09/12 15:28:08]
+
+% Tikz wird benötigt
+\RequirePackage{tikz}
+
+% In den Präsentationsmodus wechseln
+\mode<presentation>
+
+% Standard-Stil für die Titelseite festlegen:
+\DeclareOptionBeamer{alternativetitlepage}[normal]{\def\beamer@Diplsem@alternativetitlepage{#1}}
+\ExecuteOptionsBeamer{alternativetitlepage=normal}
+\ProcessOptionsBeamer
+
+%% Bild definieren:
+% Logo für die Titelseite
+\pgfdeclareimage[width=1.8cm]{logoTitle}{logo}
+
+% Bilder für das Literaturverzeichnis
+\pgfdeclareimage[width=14pt,height=12pt]{beamericonbook}{beamericonbook}
+\pgfdeclareimage[width=14pt,height=12pt]{beamericonbookshaded}{beamericonbook.20}
+\pgfaliasimage{beamericonbook.!20opaque}{beamericonbookshaded}
+\pgfaliasimage{beamericonbook.!15opaque}{beamericonbookshaded}
+\pgfaliasimage{beamericonbook.!10opaque}{beamericonbookshaded}
+\pgfaliasimage{beamericonbook.!5opaque}{beamericonbookshaded}
+\pgfaliasimage{beamericonbook.!2opaque}{beamericonbookshaded}
+\pgfdeclareimage[width=11pt,height=14pt]{beamericonarticle}{beamericonarticle}
+\pgfdeclareimage[width=11pt,height=14pt]{beamericonarticleshaded}{beamericonarticle.20}
+\pgfaliasimage{beamericonarticle.!20opaque}{beamericonarticleshaded}
+\pgfaliasimage{beamericonarticle.!15opaque}{beamericonarticleshaded}
+\pgfaliasimage{beamericonarticle.!10opaque}{beamericonarticleshaded}
+\pgfaliasimage{beamericonarticle.!5opaque}{beamericonarticleshaded}
+\pgfaliasimage{beamericonarticle.!2opaque}{beamericonarticleshaded}
+
+% Hilfsfunktion für das Sponsor-Logo
+\newcount\sponsor
+\sponsor=0
+
+\newcommand{\sponsorlogo}[2][\empty]{
+    \pgfdeclareimage[#1]{sponsor}{#2}
+    \sponsor=1
+    }
+
+% Funktion für das Titelbild Redefinieren -> Wenn diese nicht aufgerufen wird, MaxTitleImage nicht aufrufen
+\renewcommand\titlegraphic[1]{\def\inserttitlegraphicrub{#1}}
+\newcommand{\TitleImage}{\@ifundefined{inserttitlegraphicrub}{}{\MaxTitleImage}}
+
+% Funktion für das Titelbild
+% Sicherstellen, dass das Bild maximiert wird.
+\RequirePackage{calc}
+\newcommand{\MaxTitleImage}{
+    \newlength\graphicheight    % Register anlegen
+    \newlength\graphicwidth
+    \setlength\graphicheight{\heightof{\includegraphics[width=\paperwidth]{\inserttitlegraphicrub}}}   %Standard: an Breite orientieren und Breite messen
+    \setlength\graphicwidth{\widthof{\includegraphics[width=\paperwidth]{\inserttitlegraphicrub}}}
+    \ifdim \graphicheight<\paperheight  % Sollte bei maximierter Breite, das Bild nicht hoch genug sein, an Höhe orientieren
+        \includegraphics[height=\paperheight, keepaspectratio = true]{\inserttitlegraphicrub}
+    \else
+        \includegraphics[width=\paperwidth, keepaspectratio = true]{\inserttitlegraphicrub}
+    \fi
+    }
+
+% supervisor, beginning data, deadline variables to use like \author{Author}
+\let\@supervisor\relax
+\def\supervisor#1{\def\@supervisor{#1}}
+\let\@beginning\relax
+\def\beginning#1{\def\@beginning{#1}}
+\let\@deadline\relax
+\def\deadline#1{\def\@deadline{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\defbeamertemplate*{title page}{Diplsem}
+{  % Beginn der Definition: Bild
+\begin{tikzpicture}[remember picture,overlay]
+% Erste Node: Setzt ganz oben links an, von dem Punkt aus kann dann in der zweiten tikzpicture Umgebung ausgegangen werden
+\node[anchor=north west, inner sep=0pt]  at (current page.north west) {
+    \begin{tikzpicture}[remember picture,overlay]
+    % Bild im Hintergrund
+    \node[anchor=north west, inner sep=0pt, xshift=-2mm]  at (current page.north west) {\TitleImage};
+    % Weißer Fläche mit Text
+    \draw[style={white, line width=0pt, fill=white, opacity=0.85}] (current page.north west) rectangle (0.90\paperwidth,-52mm);
+    % Text
+    \node[anchor=north west, inner sep=0pt, xshift=.3cm,yshift=-0.5cm]  at (current page.north west) {
+        \begin{minipage}{\linewidth}
+            \begin{beamercolorbox}{title}
+%                 \pgfuseimage{wortmarkeTitle}\\[0.3cm]
+		\begin{tiny}\textbf{RUHR-UNIVERSIT{\"A}T}~BOCHUM \end{tiny}\\ [0.3cm]
+                \usebeamerfont{title}\inserttitle\par%
+                    \ifx\insertsubtitle\@empty%
+                      \else%
+                          \vskip0.20em%
+                         {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+                    \fi%
+            \end{beamercolorbox}%
+            \vskip1em\par
+            \ifnum\sponsor=0 % Prüfen ob es ein Sponsorlogo gibt
+	        \begin{minipage}{\linewidth} % wenn nein, ganze Zeile nutzen
+            \else 
+            \begin{minipage}{8cm}         % wenn ja, Platz fürs Logo lassen
+            \fi
+            \begin{beamercolorbox}[sep=0pt]{institute}
+                \usebeamerfont{institute}\insertinstitute
+            \end{beamercolorbox}
+            \begin{beamercolorbox}{author}
+                 \usebeamerfont{author}\insertauthor
+            \end{beamercolorbox}
+            \vspace{0.5cm}
+            \usebeamerfont{titleinfo}
+            \begin{tabular}{@{}llr@{}}
+            Supervisor: & \@supervisor & \\
+            Beginning date: & \@beginning & \\
+            Deadline:  & \@deadline & \hspace{4cm} \begin{beamercolorbox}{date} \usebeamerfont{date}\insertdate \end{beamercolorbox}\\
+            \end{tabular}
+            \vspace{1cm}
+            \end{minipage}
+            \end{minipage}};
+         
+        % Sponsor-Logo
+        \node[anchor=north west,xshift=-50mm, yshift=-29mm, rectangle, inner sep=0pt, line width=0pt, minimum width=35mm, text height=15mm, minimum height=15mm] at (current page.north east){
+                    \ifnum\sponsor>0
+                    \pgfuseimage{sponsor}
+                    \else
+                     \fi}; 
+
+    % Logo
+    \node[anchor=north west,xshift=-2.25cm, yshift=1pt, rectangle, inner sep=0pt, line width=0pt] at (current page.north east){\pgfuseimage{logoTitle}}; 
+      \end{tikzpicture}};
+ \end{tikzpicture}  
+}   % Ende der Definition: Bild
+
+% Macro zum Aufruf der Titelseite (um Fußzeile zu löschen)
+\newcommand{\titleframe}{
+  \setbeamertemplate{footline}{}
+  \setbeamertemplate{headline}{}
+  \frame{\titlepage} 
+  \setbeamertemplate{footline}[Diplsem theme]
+  \setbeamertemplate{headline}[Diplsem theme]
+}
+
+
+% Part page: Diplsem
+\defbeamertemplate*{part page}{Diplsem}[1][]
+{
+  \begin{centering}
+    {\usebeamerfont{part name}\usebeamercolor[fg]{part name}\partname~\insertromanpartnumber}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{part title}
+      \usebeamerfont{part title}\insertpart\par
+    \end{beamercolorbox}
+  \end{centering}
+} 
+
+
+%
+% Table of contents
+%
+
+%\defbeamertemplateparent{sections/subsections in toc}{section in toc,subsection in toc,subsubsection in toc}
+{}
+
+%\defbeamertemplateparent{sections/subsections in toc shaded}{section in toc shaded,subsection in toc shaded,subsubsection in toc shaded}[1][20]
+%{[#1]}
+
+
+% (sub-)section in toc: Diplsem
+\defbeamertemplate*{section in toc}{Diplsem}
+{\inserttocsection\par}
+
+\defbeamertemplate*{subsection in toc}{Diplsem}
+{\leavevmode\leftskip=1.5em\inserttocsubsection\par}
+
+\defbeamertemplate*{subsubsection in toc}{Diplsem}
+{\leavevmode\normalsize\usebeamerfont{subsection in toc}\leftskip=3em%
+  \usebeamerfont{subsubsection in toc}\inserttocsubsubsection\par}
+
+
+% (sub-)section in toc shaded, Diplsem
+\defbeamertemplate*{section in toc shaded}{Diplsem}[1][20]
+{\begin{colormixin}{#1!parent.bg}\usebeamertemplate{section in toc}\end{colormixin}\unskip}
+
+\defbeamertemplate*{subsection in toc shaded}{Diplsem}[1][20]
+{\begin{colormixin}{#1!parent.bg}\usebeamertemplate{subsection in toc}\end{colormixin}\unskip}
+
+\defbeamertemplate*{subsubsection in toc shaded}{Diplsem}[1][20]
+{\begin{colormixin}{#1!parent.bg}\usebeamertemplate{subsubsection in toc}\end{colormixin}\unskip}
+
+
+
+
+
+%
+% Item
+%
+%\defbeamertemplateparent{items}{itemize items,enumerate items}
+%{}
+
+
+% Itemize items
+%\defbeamertemplateparent{itemize items}{itemize item,itemize subitem,itemize subsubitem}
+%{}
+
+
+% Itemize items, Diplsem
+\defbeamertemplate*{itemize item}{Diplsem}{\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+\defbeamertemplate*{itemize subitem}{Diplsem}{\tiny\raise1.5pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+\defbeamertemplate*{itemize subsubitem}{Diplsem}{\tiny\raise1.5pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+
+
+% Enumerate items, Diplsem
+%\defbeamertemplateparent{enumerate items}{enumerate item,enumerate subitem,enumerate subsubitem,enumerate mini}
+%{}
+
+\defbeamertemplate*{enumerate item}{Diplsem}{\insertenumlabel.}
+\defbeamertemplate*{enumerate subitem}{Diplsem}{\insertenumlabel.\insertsubenumlabel}
+\defbeamertemplate*{enumerate subsubitem}{Diplsem}{\insertenumlabel.\insertsubenumlabel.\insertsubsubenumlabel}
+\defbeamertemplate*{enumerate mini template}{Diplsem}{\insertenumlabel}
+
+
+% Description item width
+\defbeamertemplate*{description item}{Diplsem}{\insertdescriptionitem}
+
+
+
+% Itemize/Enumerate body
+\defbeamertemplate*{itemize/enumerate body begin}{Diplsem}{}
+\defbeamertemplate*{itemize/enumerate body end}{Diplsem}{}
+
+\defbeamertemplate*{itemize/enumerate subbody begin}{Diplsem}{}
+\defbeamertemplate*{itemize/enumerate subbody end}{Diplsem}{}
+
+\defbeamertemplate*{itemize/enumerate subsubbody begin}{Diplsem}{}
+\defbeamertemplate*{itemize/enumerate subsubbody end}{Diplsem}{}
+
+
+
+% Alerted text
+\defbeamertemplate*{alerted text begin}{Diplsem}{\setbeamercolor{local structure}{parent=alerted text}}
+
+% Bibliography items
+\defbeamertemplate*{bibliography item}{Diplsem}
+{\hspace{3.2mm}\lower3.5pt\hbox{\hskip2pt\pgfuseimage{beamericonarticle}\hskip1pt}}
+
+\defbeamertemplate*{bibliography entry article}{Diplsem}{}
+\defbeamertemplate*{bibliography entry title}{Diplsem}{\par}
+\defbeamertemplate*{bibliography entry location}{Diplsem}{\par}
+\defbeamertemplate*{bibliography entry note}{Diplsem}{\par}
+
+
+% Buttons
+\newdimen\beamer@dima%
+\newdimen\beamer@dimb%
+
+\defbeamertemplate*{button}{Diplsem}
+{%
+  \setbox\beamer@tempbox=\hbox{{\insertbuttontext}}%
+  \ht\beamer@tempbox=6pt%
+  \dp\beamer@tempbox=0pt%
+  \setbox\beamer@tempbox=\vbox{\box\beamer@tempbox\vskip2pt}%
+  \beamer@tempdim=\wd\beamer@tempbox%
+  \beamer@dima=\beamer@tempdim\advance\beamer@dima by2.2pt
+  \beamer@dimb=\beamer@tempdim\advance\beamer@dimb by4pt
+  \begin{pgfpicture}{-4pt}{0pt}{\the\beamer@tempdim}{8pt}
+    \color{bg}
+    \pgfsetlinewidth{0.8pt}
+    \pgfpathqmoveto{0pt}{0pt}
+    \pgfpathqcurveto{-2.2pt}{0pt}{-4pt}{1.8pt}{-4pt}{4pt}
+    \pgfpathqcurveto{-4pt}{6.2pt}{-2.2pt}{8pt}{0pt}{8pt}
+    \pgfpathlineto{\pgfpoint{\the\beamer@tempdim}{8pt}}
+    \pgfpathcurveto%
+    {\pgfpoint{\the\beamer@dima}{8pt}}%
+    {\pgfpoint{\the\beamer@dimb}{6.2pt}}%
+    {\pgfpoint{\the\beamer@dimb}{4pt}}
+    \pgfpathcurveto%
+    {\pgfpoint{\the\beamer@dimb}{1.8pt}}%
+    {\pgfpoint{\the\beamer@dima}{0pt}}%
+    {\pgfpoint{\the\beamer@tempdim}{0pt}}
+    \pgfpathclose
+    \pgfusepathqfill
+    \colorlet{bg}{parent.bg}
+    \usebeamercolor[fg]{button border}
+    \pgfpathqmoveto{0pt}{0pt}
+    \pgfpathqcurveto{-2.2pt}{0pt}{-4pt}{1.8pt}{-4pt}{4pt}
+    \pgfpathqcurveto{-4pt}{6.2pt}{-2.2pt}{8pt}{0pt}{8pt}
+    \pgfpathlineto{\pgfpoint{\the\beamer@tempdim}{8pt}}
+    \pgfpathcurveto%
+    {\pgfpoint{\the\beamer@dima}{8pt}}%
+    {\pgfpoint{\the\beamer@dimb}{6.2pt}}%
+    {\pgfpoint{\the\beamer@dimb}{4pt}}
+    \pgfpathcurveto%
+    {\pgfpoint{\the\beamer@dimb}{1.8pt}}%
+    {\pgfpoint{\the\beamer@dima}{0pt}}%
+    {\pgfpoint{\the\beamer@tempdim}{0pt}}
+    \pgfpathclose
+    \pgfusepathqstroke
+  \end{pgfpicture}%
+  \hskip-\beamer@tempdim%
+  \box\beamer@tempbox%
+  \kern4pt%
+}
+
+
+% Abstract
+\defbeamertemplate*{abstract title}{Diplsem}
+{%
+  \begin{center}%
+    \abstractname
+  \end{center}%
+}
+
+\defbeamertemplate*{abstract begin}{Diplsem}
+{\beamercolorbox[vmode]{abstract}\leftskip2em\rightskip2em plus 1fill\usebeamerfont*{abstract}}
+
+\defbeamertemplate*{abstract end}{Diplsem}
+{\medskip\endbeamercolorbox}
+
+
+% Verse
+\defbeamertemplate*{verse begin}{Diplsem}
+{\beamercolorbox[vmode]{verse}}
+
+\defbeamertemplate*{verse end}{Diplsem}
+{\endbeamercolorbox}
+
+
+% Quotation
+\defbeamertemplate*{quotation begin}{Diplsem}
+{\beamercolorbox[vmode]{quotation}}
+
+\defbeamertemplate*{quotation end}{Diplsem}
+{\endbeamercolorbox}
+
+
+% Quote
+\defbeamertemplate*{quote begin}{Diplsem}
+{\beamercolorbox[vmode]{quote}}
+
+\defbeamertemplate*{quote end}{Diplsem}
+{\endbeamercolorbox}
+
+
+% Footnotes
+\defbeamertemplate*{footnote}{Diplsem}
+{
+  \parindent 1em\noindent%
+  \raggedright
+  \hbox to 1.8em{\hfil\insertfootnotemark}\insertfootnotetext\par%
+}
+
+
+% Captions
+\defbeamertemplate*{caption}{Diplsem}
+{%
+  \raggedright
+  {%
+    \usebeamercolor[fg]{caption name}%
+    \usebeamerfont*{caption name}%
+    \insertcaptionname:%
+  }
+  \insertcaption\par
+}
+
+
+% Blocks
+\defbeamertemplate*{block begin}{Diplsem}
+{
+  \par\vskip\medskipamount%
+  \begin{beamercolorbox}[colsep*=.75ex]{block title}
+    \usebeamerfont*{block title}\insertblocktitle%
+  \end{beamercolorbox}%
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title}
+  {}
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\defbeamertemplate*{block end}{Diplsem}  
+{\end{beamercolorbox}\vskip\smallskipamount}
+
+\defbeamertemplate*{block alerted begin}{Diplsem}
+{
+  \par\vskip\medskipamount%
+  \begin{beamercolorbox}[colsep*=.75ex]{block title alerted}
+    \usebeamerfont*{block title alerted}\insertblocktitle%
+  \end{beamercolorbox}%
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title alerted}
+  {}
+  {\ifbeamercolorempty[bg]{block body alerted}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body alerted}%
+  \begin{beamercolorbox}[colsep*=.75ex,vmode]{block body alerted}%
+    \ifbeamercolorempty[bg]{block body alerted}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+
+\defbeamertemplate*{block alerted end}{Diplsem}
+{\end{beamercolorbox}\vskip\smallskipamount}
+
+
+\defbeamertemplate*{block example begin}{Diplsem}
+{
+  \par\vskip\medskipamount%
+  \begin{beamercolorbox}[colsep*=.75ex]{block title example}
+    \usebeamerfont*{block title example}\insertblocktitle%
+  \end{beamercolorbox}%
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title example}
+  {}
+  {\ifbeamercolorempty[bg]{block body example}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body example}%
+  \begin{beamercolorbox}[colsep*=.75ex,vmode]{block body example}%
+    \ifbeamercolorempty[bg]{block body example}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\defbeamertemplate*{block example end}{Diplsem}
+{\end{beamercolorbox}\vskip\smallskipamount}
+
+% Theorems
+%\defbeamertemplateparent{theorems}{theorem begin,theorem end}
+%{}
+
+\defbeamertemplate*{theorem begin}{Diplsem}
+{%
+  \begin{\inserttheoremblockenv}
+  {%
+    \inserttheoremname
+    \ifx\inserttheoremaddition\@empty\else\ (\inserttheoremaddition)\fi%
+  }%
+}
+
+\defbeamertemplate*{theorem end}{Diplsem}
+{\end{\inserttheoremblockenv}}
+
+
+% Proofs
+\defbeamertemplate*{proof begin}{Diplsem}
+{\begin{block}{\insertproofname}}
+
+\defbeamertemplate*{proof end}{Diplsem}
+{\end{block}}
+
+\defbeamertemplate*{qed symbol}{Diplsem}
+{\openbox}
+
+
+\setbeamertemplate{sections/subsections in toc}[square]
+\setbeamertemplate{items}[square]
+
+
+\mode
+<all>
